@@ -9,7 +9,7 @@
  *
  * Model version              : 9.6
  * Simulink Coder version : 26.1 (R2026a) 20-Nov-2025
- * C source code generated on : Tue Oct 27 23:38:34 2026
+ * C source code generated on : Wed Oct 28 16:47:17 2026
  *
  * Target selection: quarc_win64.tlc
  * Note: GRT includes extra infrastructure and instrumentation for prototyping
@@ -25,12 +25,12 @@ P_pd_control_qs3_T pd_control_qs3_P = {
   /* Mask Parameter: ProportionalGain_gain
    * Referenced by: '<S2>/Slider Gain'
    */
-  5.0,
+  1.0,
 
   /* Mask Parameter: DerivativeGain_gain
    * Referenced by: '<S1>/Slider Gain'
    */
-  0.2,
+  0.5,
 
   /* Mask Parameter: HILWrite_analog_channels
    * Referenced by: '<S3>/HIL Write'

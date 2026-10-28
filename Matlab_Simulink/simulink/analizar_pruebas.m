@@ -1,11 +1,10 @@
-function analizar_pruebas(orden)
+function tabla = analizar_pruebas(orden)
 % Script para entender Qube Servo 3
 % Como funciona con 500Hz, Hace el muestreo cada 2ms
-% y la grabación sale completa hasta unos 10s.Con 2 ms, 10 s son
-% justo 5000 muestras, y 5000 es el valor por defecto de Limit data points
-% to last en el Scope.
+% y la grabación sale completa hasta unos 9.99s.
 %------------------------
 % USAR 9.99s
+% AMPLITUD 1.5 +-= 85.944º, es decir, no son 90º puros.
 % POR DEFECTO ORDENA POR
 % ITAE, AÑADIR ARGUMENTO P.E:('sobrepaso') para otro
 %-------------------------------
@@ -34,6 +33,7 @@ for n = 2:numel(cambios)
     tseg = t(a:b) - t(a); % tiempo del tramo
     IAE(n-1) = sum(abs(e)) * Ts;
     ITAE(n-1) = sum(tseg.*abs(e)) * Ts;
+    % Cálculo del sobrepaso
     salto = r(a) - y(a);
     yn = (y(a:b) - y(a)) / salto;
     SOBREPASO(n-1) = max(0, max(yn) - 1) * 100;
@@ -52,8 +52,8 @@ save(sprintf('pruebas/prueba_kp%g_kd%g.mat', Kp, Kd), 'ScopeData', 'ScopeData1',
 % VER Y COMPARAR
 tabla = array2table(resultados, 'VariableNames', {'Kp','Kd','IAE','ITAE','SOBREPASO','TV'});
 if strcmp(orden, 'ITAE')
-    tabla = sortrows(tabla, 'ITAE')
+    tabla = sortrows(tabla, 'ITAE');
 else
-    tabla = sortrows(tabla, {orden, 'ITAE'})
+    tabla = sortrows(tabla, {orden, 'ITAE'});
 end
 end

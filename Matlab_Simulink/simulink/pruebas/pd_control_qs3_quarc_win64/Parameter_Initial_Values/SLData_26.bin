@@ -1,0 +1,4 @@
+/* Computed Parameter: HILReadTimebase_OtherChannels
+  * Referenced by: '<S3>/HIL Read Timebase'
+   */
+{   14000U, 14001U } 

@@ -1,0 +1,4 @@
+/* Expression: watchdog_other_outputs
+  * Referenced by: '<S3>/HIL Initialize'
+   */
+{   0.0, 0.0, 1.0 } 

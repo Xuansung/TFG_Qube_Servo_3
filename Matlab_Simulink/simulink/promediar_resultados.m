@@ -1,4 +1,8 @@
-function promediar_resultados(orden)
+%Función para promediar los resultados dados de analizar_pruebas.m
+% Por defecto ordena por ITAE
+% pero se puede añadir un
+% argumento que es el nombre del índice que se quiere.
+function medias = promediar_resultados(orden)
  if nargin < 1 
     orden = 'ITAE';
 end
@@ -15,9 +19,9 @@ for k = 1:4
     medias.([nombres{k} '_std']) = dev;
 end
 if strcmp(orden, 'ITAE')
-    medias = sortrows(medias, 'ITAE_media')
+    medias = sortrows(medias, 'ITAE_media');
 else
-    medias = sortrows(medias, {[orden '_media'], 'ITAE_media'})
+    medias = sortrows(medias, {[orden '_media'], 'ITAE_media'});
 end
 save('pruebas/resultados_medios.mat', 'medias')
 writetable(medias, 'pruebas/resultados_medios.csv')
