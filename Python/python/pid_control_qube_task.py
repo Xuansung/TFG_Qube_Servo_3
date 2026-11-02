@@ -26,7 +26,7 @@ signal.signal(signal.SIGINT, sig_handler)
 
 #region: Configuración del experimento, solo modificar esta parte.
 MODE   = 'PID'        # 'P', 'PI' o 'PID'
-TARGET = 'position'   # 'position' (rad) o 'speed' (rad/s)
+TARGET = 'speed'   # 'position' (rad) o 'speed' (rad/s)
 simulationTime = 9.99   # s
 V_MAX    = 10.0       # saturacion del voltaje al motor (V)
 REF_PERIOD = 2.5      # s, PERIODO de la onda cuadrada
@@ -37,10 +37,10 @@ TF_D     = 0.02       # s, filtro de la derivada (solo se usa en velocidad)
 GAINS = {
     'position': {'P':   (4.0, 0.0, 0.0),
                  'PI':  (4.0, 1.0, 0.0),
-                 'PID': (7.0, 3.0, 0.2)},   # kp y kd: los del ejemplo original
+                 'PID': (10.0, 5.0, 0.2)},   # kp y kd: los del ejemplo original
     'speed':    {'P':   (0.10, 0.0, 0.0),
                  'PI':  (0.10, 0.8, 0.0),
-                 'PID': (0.10, 0.8, 0.002)},
+                 'PID': (0.10, 5.0, 0.002)},
 }
 REF_AMPLITUDE = {'position': 1.5, 'speed': 20.0}   # rad  /  rad/s
 LABEL = {'position': ('Position', 'rad'), 'speed': ('Speed', 'rad/s')}
