@@ -1,7 +1,7 @@
 ## pid_control_qube_task.py
 # Basado en pd_control_qube_task.py (Quanser).
 # Controlador P, PI o PID seleccionable para la POSICION o la VELOCIDAD del disco
-# del QUBE-Servo 3, en modo "task" (el modo temporal gestiona el muestreo por ti).
+# del QUBE-Servo 3.
 # Al terminar guarda un CSV (t, referencia, medida, voltaje) e imprime IAE, ISE, ITAE,
 # ITSE y esfuerzo de control.
 # -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
@@ -32,11 +32,11 @@ TF_D     = 0.02       # s, filtro de la derivada (solo se usa en velocidad)
 
 # Ganancias (kp, ki, kd) para cada objetivo y modo.
 # P, PI y PID se distinguen solo por tener ki y/o kd a cero.
-TARGET = 'speed'   # 'position' (rad) o 'speed' (rad/s)
+TARGET = 'position'   # 'position' (rad) o 'speed' (rad/s)
 REF_AMPLITUDE = {'position': 1.5, 'speed': 20.0}   # rad  /  rad/s
 LABEL = {'position': ('Position', 'rad'), 'speed': ('Speed', 'rad/s')}
 
-kp, ki, kd = [0.10, 5.0, 0.002]   # PID
+kp, ki, kd = [7.0, 0.0, 0.2]   # PID
 color = np.array([0, 1, 0], dtype=np.float64)
 #endregion
 

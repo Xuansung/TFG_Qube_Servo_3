@@ -1,12 +1,14 @@
-## pd_control_qs3.py
+## pd_control_qs3_position.py
 # Traduccion a Python del modelo de Simulink pd_control_qs3.slx (QUARC, Qube-Servo 3).
 # Control PD de la POSICION del disco con una onda cuadrada de referencia:
 #
 #       u = sat_10V( Kp*e  - Kd*w )
 #
-# Uso:   py pd_control_qs3.py            (Kp=7, Kd=0.2
+# Uso:   py pd_control_qs3.py            (Kp=7, Kd=0.2)
 #        py pd_control_qs3.py 5 0.15     (otros Kp y Kd)
 # Cada ejecucion guarda un CSV en pruebas_python/ con t, r, y, u y el tiempo real medido.
+# La diferencia respecto a los otros es que hace una media de los indices sobre todos los 
+# tramos de referencia, en lugar de sumarlos sobre toda la prueba.
 
 import os
 import signal
@@ -28,7 +30,7 @@ V_MAX = 10.0          # V
 FRECUENCIA = 500      # Hz
 TS = 1.0 / FRECUENCIA
 STOP_TIME = 9.99      # s     
-SCOPES = True         # False = sin graficas en vivo (menos carga de CPU, menos jitter)
+SCOPES = False         # False = sin graficas en vivo (menos carga de CPU)
 #endregion
 
 #Hilo para poder matar el bucle de control con Ctrl-C
@@ -38,7 +40,7 @@ def sig_handler(*args):
     KILL_THREAD = True
 signal.signal(signal.SIGINT, sig_handler)
 
-"Calcula metricas de control: IAE, ITAE, sobrepaso y TV (total variation) "
+"Calcula metricas de control: IAE, ITAE, ISE y TV (total variation) "
 "para cada tramo entre cambios de referencia consecutivos."
 def metricas(t, r, y, u, Ts=TS):
     cambios = np.where(np.abs(np.diff(r)) > 0.5)[0] # find(abs(diff(r)) > 0.5)
@@ -87,7 +89,6 @@ def informe(log):
         print('Sin datos suficientes.')
         return
     m = metricas(t, r, y, u)
-    dt = np.diff(wall)
     print(f'\n--- Kp={KP:g}  Kd={KD:g}  ({len(t)} muestras, {m["tramos"]} tramos) ---')
     print(f'IAE  = {m["IAE"]:.5f}')
     print(f'ITAE = {m["ITAE"]:.5f}')
@@ -95,7 +96,7 @@ def informe(log):
     print(f'TV   = {m["TV"]:.5f}')
     os.makedirs('pruebas_python', exist_ok=True)
     n = 1
-    while os.path.exists(f'pruebas_python/prueba_kp{KP:g}_kd{KD:g}_run{n}.csv'):
+    while os.path.exists(f'pruebas_python/posicion_kp{KP:g}_kd{KD:g}_run{n}.csv'):
         n += 1
     fname = f'pruebas_python/prueba_kp{KP:g}_kd{KD:g}_run{n}.csv'
     np.savetxt(fname, np.column_stack([t, r, y, u, wall]), delimiter=',',
@@ -120,8 +121,8 @@ if __name__ == '__main__':
         time.sleep(0.01)
     thread.join()
     informe(log)
-    while thread.is_alive() and (not KILL_THREAD):
-        Scope.refreshAll()
-        time.sleep(0.01)
-
-input('Presiona cualquier botón para salir.')
+    if SCOPES and not KILL_THREAD:
+        print('Prueba terminada. Ctrl+C para cerrar las graficas.')
+        while not KILL_THREAD:
+            Scope.refreshAll()
+            time.sleep(0.01)
