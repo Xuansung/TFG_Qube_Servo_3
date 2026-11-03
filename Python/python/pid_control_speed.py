@@ -19,7 +19,6 @@ signal.signal(signal.SIGINT, sig_handler)
  
  
 #region: Configuración del experimento, solo modificar esta parte.
-MODE   = 'PID'        # 'P', 'PI' o 'PID'
 simulationTime = 9.99   # s
 V_MAX    = 10.0       # saturacion del voltaje al motor (V)
 REF_PERIOD = 2.5      # s, PERIODO de la onda cuadrada
@@ -29,11 +28,8 @@ PAUSA    = 3.0        # s de descanso entre repeticiones (--rep)
  
 # Ganancias (kp, ki, kd) de cada modo.
 # P, PI y PID se distinguen solo por tener ki y/o kd a cero.
-GAINS = {'P':   (0.10, 0.0, 0.0),
-         'PI':  (0.10, 0.8, 0.0),
-         'PID': (0.10, 0.8, 0.002)}
  
-kp, ki, kd = GAINS[MODE]
+kp, ki, kd = [0.10, 5.0, 0.002]   # PID 
 color = np.array([0, 1, 0], dtype=np.float64)
 #endregion
  
@@ -43,7 +39,7 @@ squareWave = SignalGenerator().square(REF_AMPLITUDE, REF_PERIOD)
 next(squareWave)
  
 scopeMain = Scope(
-    title=f'Measured vs Desired Speed ({MODE})',
+    title=f'Measured vs Desired Speed PID',
     timeWindow=10,
     xLabel='Time (s)',
     yLabel='Speed (rad/s)')
@@ -77,12 +73,10 @@ class PID:
         return u
 #endregion
  
- 
 #region: Resultados
-NOMBRES_INDICES = ['IAE', 'ISE', 'ITAE', 'ITSE', 'Esfuerzo']
- 
+NOMBRES_INDICES = ['IAE', 'ISE', 'ITAE', 'Esfuerzo']
 def indices(log):
-    """IAE, ISE, ITAE, ITSE y esfuerzo de una prueba (sumas sobre toda la prueba)."""
+    """IAE, ISE, ITAE y esfuerzo de una prueba (sumas sobre toda la prueba)."""
     d = np.array(log)
     t, ref, y, u, tau = d.T          # tau = tiempo desde el ultimo cambio de referencia
     e = ref - y
@@ -90,7 +84,6 @@ def indices(log):
     return np.array([np.sum(np.abs(e)*dt),
                      np.sum(e**2*dt),
                      np.sum(tau*np.abs(e)*dt),
-                     np.sum(tau*e**2*dt),
                      np.sum(u**2*dt)])
  
 def guardar(log):
@@ -104,7 +97,6 @@ def guardar(log):
     np.savetxt(fname, np.array(log)[:, :4], delimiter=',', header='t,ref,medida,voltaje', comments='')
     return fname
 #endregion
- 
  
 # Code to control the Qube Hardware (una prueba completa; t_offset solo desplaza el tiempo de las graficas)
 def control_loop(log, t_offset=0.0):
@@ -151,14 +143,12 @@ def control_loop(log, t_offset=0.0):
             prev_t, prev_meas = timeStamp, meas
             timeStamp = elapsed_time()
  
- 
 def esperar(segundos):
     """Pausa sin congelar las ventanas de las graficas."""
     fin = time.time() + segundos
     while time.time() < fin and not KILL_THREAD:
         Scope.refreshAll()
         time.sleep(0.01)
- 
  
 def main():
     ap = argparse.ArgumentParser(description='Control P/PI/PID de la velocidad del disco del Qube-Servo 3.')
@@ -170,7 +160,7 @@ def main():
     for rep in range(args.rep):
         if KILL_THREAD:
             break
-        print(f'\n=== {MODE}: kp={kp:g}, ki={ki:g}, kd={kd:g}  (repeticion {rep + 1}/{args.rep}) ===')
+        print(f'\n=== PID: kp={kp:g}, ki={ki:g}, kd={kd:g}  (repeticion {rep + 1}/{args.rep}) ===')
  
         log = []
         # Setup data generation thread and run until complete
@@ -198,11 +188,11 @@ def main():
  
     if len(resultados) > 1:
         R = np.array(resultados)
-        print(f'\n--- Resumen de {len(R)} repeticiones ({MODE}: kp={kp:g}, ki={ki:g}, kd={kd:g}) ---')
+        print(f'\n--- Resumen de {len(R)} repeticiones (PID: kp={kp:g}, ki={ki:g}, kd={kd:g}) ---')
         for i, nombre in enumerate(NOMBRES_INDICES):
             print(f'{nombre:9s} = {R[:, i].mean():.4f} ± {R[:, i].std(ddof=1):.4f}')
  
-    input('Press the enter key to exit.')
+    input('Presiona cualquier botón para salir.')
  
  
 if __name__ == '__main__':

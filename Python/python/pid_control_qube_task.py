@@ -25,8 +25,6 @@ signal.signal(signal.SIGINT, sig_handler)
 
 
 #region: Configuración del experimento, solo modificar esta parte.
-MODE   = 'PID'        # 'P', 'PI' o 'PID'
-TARGET = 'speed'   # 'position' (rad) o 'speed' (rad/s)
 simulationTime = 9.99   # s
 V_MAX    = 10.0       # saturacion del voltaje al motor (V)
 REF_PERIOD = 2.5      # s, PERIODO de la onda cuadrada
@@ -34,18 +32,11 @@ TF_D     = 0.02       # s, filtro de la derivada (solo se usa en velocidad)
 
 # Ganancias (kp, ki, kd) para cada objetivo y modo.
 # P, PI y PID se distinguen solo por tener ki y/o kd a cero.
-GAINS = {
-    'position': {'P':   (4.0, 0.0, 0.0),
-                 'PI':  (4.0, 1.0, 0.0),
-                 'PID': (10.0, 5.0, 0.2)},   # kp y kd: los del ejemplo original
-    'speed':    {'P':   (0.10, 0.0, 0.0),
-                 'PI':  (0.10, 0.8, 0.0),
-                 'PID': (0.10, 5.0, 0.002)},
-}
+TARGET = 'speed'   # 'position' (rad) o 'speed' (rad/s)
 REF_AMPLITUDE = {'position': 1.5, 'speed': 20.0}   # rad  /  rad/s
 LABEL = {'position': ('Position', 'rad'), 'speed': ('Speed', 'rad/s')}
 
-kp, ki, kd = GAINS[TARGET][MODE]
+kp, ki, kd = [0.10, 5.0, 0.002]   # PID
 color = np.array([0, 1, 0], dtype=np.float64)
 #endregion
 
@@ -56,7 +47,7 @@ next(squareWave)
 
 name, unit = LABEL[TARGET]
 scopeMain = Scope(
-    title=f'Measured vs Desired {name} ({MODE})',
+    title=f'Measured vs Desired {name} PID',
     timeWindow=10,
     xLabel='Time (s)',
     yLabel=f'{name} ({unit})')
@@ -106,10 +97,10 @@ def report(log):
         'ITSE':     np.sum(tau*e**2*dt),
         'Esfuerzo': np.sum(u**2*dt),
     }
-    print(f'\n--- {TARGET} / {MODE}  (kp={kp}, ki={ki}, kd={kd}) ---')
+    print(f'\n--- {TARGET} / PID  (kp={kp}, ki={ki}, kd={kd}) ---')
     for k, v in metrics.items():
         print(f'{k:9s} = {v:.4f}')
-    fname = f'resultados_{TARGET}_{MODE}.csv'
+    fname = f'resultados_{TARGET}_PID.csv'
     np.savetxt(fname, d[:, :4], delimiter=',', header='t,ref,medida,voltaje', comments='')
     print(f'Datos guardados en {fname}')
 #endregion
@@ -174,10 +165,7 @@ thread = Thread(target=control_loop)
 thread.start()
 
 while thread.is_alive() and (not KILL_THREAD):
-
-    # This must be called regularly or the scope windows will freeze
-    # Must be called in the main thread.
     Scope.refreshAll()
     time.sleep(0.01)
 
-input('Press the enter key to exit.')
+input('Presiona cualquier botón para salir.')
