@@ -23,13 +23,13 @@ V_MAX    = 10.0       # saturacion del voltaje al motor (V)
 REF_PERIOD = 2.5      # s, PERIODO de la onda cuadrada
 REF_AMPLITUDE = 20.0  # rad/s, la referencia salta entre +20 y -20 rad/s
 TF_D     = 0.02       # s, filtro de la derivada de la velocidad (solo cuenta si kd > 0)
-PAUSA    = 3.0        # s de descanso entre repeticiones (--rep)
+PAUSA    = 5.0        # s de descanso entre repeticiones (--rep)
  
 # P, PI y PID se distinguen solo por tener ki y/o kd a cero.
-kp, ki, kd = [0.20, 5.0, 0.002]   # PID 
+kp, ki, kd = [0.4, 0.0, 0.00]   # PID 
 color = np.array([0, 1, 0], dtype=np.float64)
 #endregion
- 
+
 #region: Setup de referencia y graficas
 squareWave = SignalGenerator().square(REF_AMPLITUDE, REF_PERIOD)
 next(squareWave)

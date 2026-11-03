@@ -59,20 +59,6 @@ scopeVoltage.attachSignal(name='Voltage',  width=1)
 # CHANGE qubeVersion, hardware and pendulum VARIABLES FOR DIFFERENT SETUPS
 def control_loop():
 
-    # set as 2 or 3 if using a Qube Servo 2 or 3 respectively
-    qubeVersion = 3
-
-    # Set as 0 if using virtual Qube Servo
-    # Set as 1 if using physical Qube Servo
-    hardware = 1
-
-    # Only matters when using virtual Qube. 
-    # Set as 0 for virtual DC Motor and 1 for virtual pendulum
-    # KEEP AS 1, THIS EXAMPLE USES A PENDULUM
-    # not important if using virtual
-    pendulum = 1
-
-
     frequency = 500# Hz
     state_theta_dot = np.array([0,0], dtype=np.float64)
     state_alpha_dot = np.array([0,0], dtype=np.float64)
@@ -81,14 +67,10 @@ def control_loop():
     countMax = frequency / 50
     count = 0
 
-    if qubeVersion == 2:
-        QubeClass = QubeServo2
-        K = np.array([-1, 34.75, -1.495, 3.111])
-    else:
-        QubeClass = QubeServo3
-        K = np.array([-1.2247, 24.9044, -0.6877, 3.1321])
+    QubeClass = QubeServo3
+    K = np.array([-1.2247, 24.9044, -0.6877, 3.1321])
 
-    with QubeClass(hardware=hardware, pendulum=pendulum, frequency=frequency) as myQube:
+    with QubeClass(hardware=1, pendulum=1, frequency=frequency) as myQube:
 
         startTime = 0
         timeStamp = 0
@@ -132,8 +114,6 @@ def control_loop():
 
             timeStamp = elapsed_time()
 
-
-
 # Setup data generation thread and run until complete
 thread = Thread(target=control_loop)
 thread.start()
@@ -144,6 +124,4 @@ while thread.is_alive() and (not KILL_THREAD):
     # Must be called in the main thread.
     Scope.refreshAll()
     time.sleep(0.01)
-
-
 input('Press the enter key to exit.')
